@@ -1,0 +1,19 @@
+{
+  "name": "phone-socmed-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "test": "node --import tsx --test test/*.test.ts",
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@vercel/node": "latest",
+    "libphonenumber-js": "latest"
+  },
+  "devDependencies": {
+    "tsx": "latest",
+    "typescript": "latest"
+  }
+}
