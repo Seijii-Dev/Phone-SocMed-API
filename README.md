@@ -1,12 +1,25 @@
 # Phone Social Metadata API
 
-A TypeScript + Node.js serverless API for Vercel. The default endpoint validates and normalizes phone numbers locally with `libphonenumber-js`, returning E.164 formatting, region metadata, validity, and number type.
+TypeScript + Express + Node.js API deployable to Vercel or a conventional Node.js host.
 
-## Important privacy boundary
+## Architecture
 
-The default implementation does **not** reverse-search social-media accounts by phone number. It does not scrape platforms, enumerate private accounts, use leaked databases, or infer a person's identity. Social matches can be added only through documented, authorized provider APIs with appropriate consent and provider terms compliance.
+- `src/app.ts` creates and exports the Express application without starting a listener.
+- `api/index.ts` exports the Express application for Vercel serverless execution.
+- `src/server.ts` starts the listener for local development or a persistent Node.js host.
+- `src/lookup.ts` validates and normalizes phone numbers locally with `libphonenumber-js`.
+
+The default implementation does **not** reverse-search social-media accounts by phone number. It does not scrape platforms, enumerate private accounts, use leaked databases, or infer a person's identity. Social matches require documented, authorized provider APIs with appropriate consent and provider terms compliance.
 
 ## API
+
+### `GET /`
+
+Returns service metadata.
+
+### `GET /api/health`
+
+Returns a health response.
 
 ### `POST /api/lookup`
 
@@ -19,34 +32,7 @@ Request:
 }
 ```
 
-Response:
-
-```json
-{
-  "ok": true,
-  "result": {
-    "input": "+14155552671",
-    "phone": {
-      "e164": "+14155552671",
-      "countryCallingCode": "+1",
-      "nationalNumber": "4155552671",
-      "country": "US",
-      "isPossible": true,
-      "isValid": true,
-      "type": "FIXED_LINE_OR_MOBILE"
-    },
-    "social": [
-      {
-        "provider": "social-adapters",
-        "status": "not_configured"
-      }
-    ],
-    "privacy": {
-      "searchedPublicly": false
-    }
-  }
-}
-```
+The response contains E.164 formatting, country and calling code, validity, possible-number status, number type, and an explicit `not_configured` social-adapter status.
 
 ## Local development
 
@@ -57,24 +43,14 @@ npm test
 npm run dev
 ```
 
-Then send:
-
-```bash
-curl -X POST http://localhost:3000/api/lookup \
-  -H 'content-type: application/json' \
-  -d '{"phone":"+14155552671"}'
-```
+The local server listens on `PORT` or `3000`.
 
 ## Vercel deployment
 
-The project is configured for Vercel's Node.js serverless runtime. Deploy a preview with the Vercel CLI or connect the repository in the Vercel dashboard. Configure `CORS_ORIGIN` to the exact frontend origin instead of leaving the default wildcard in production. `ALLOWED_COUNTRIES` may contain a comma-separated allowlist such as `US,CA,GB`.
+Connect the repository to Vercel and deploy the `main` branch. Vercel detects `api/index.ts` as the serverless Express entrypoint. Do not call `app.listen()` from the Vercel adapter; the listener exists only in `src/server.ts`.
 
-No API secret is required for the default local phone metadata endpoint. If an authorized provider adapter is added, store its credential in Vercel Environment Variables and never commit it to source control.
+Set `CORS_ORIGIN` to the exact frontend origin in production. `ALLOWED_COUNTRIES` may contain a comma-separated region allowlist such as `US,CA,GB`. `RATE_LIMIT` defaults to 30 requests per minute per instance.
 
 ## Security notes
 
-The in-memory rate limiter is best-effort on serverless deployments because instances are ephemeral. For production abuse prevention, place the API behind Vercel protection or an external rate-limit service. Do not log raw phone numbers; if request auditing is required, log a keyed hash with a short retention period.
-
-## Adding a social adapter
-
-An adapter must use an official API, require the appropriate user consent and authorization, document the provider's data-use rules, minimize returned fields, and clearly distinguish `found`, `not_found`, `rate_limited`, and `provider_error`. Do not add a generic search engine that probes multiple platforms by phone number.
+The in-memory rate limiter is best-effort on serverless deployments because instances are ephemeral. For production abuse prevention, add platform-level protection or a shared rate-limit store. Do not log raw phone numbers. If auditing is required, use a keyed hash with short retention.

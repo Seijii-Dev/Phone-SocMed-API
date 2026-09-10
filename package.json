@@ -3,17 +3,23 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "main": "index.ts",
+  "main": "api/index.ts",
   "scripts": {
+    "dev": "tsx watch src/server.ts",
     "build": "tsc --noEmit",
     "test": "node --import tsx --test test/*.test.ts",
-    "dev": "vercel dev"
+    "start": "tsx src/server.ts"
   },
   "dependencies": {
     "@vercel/node": "latest",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
     "libphonenumber-js": "latest"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
     "tsx": "latest",
     "typescript": "5.7.3"
   }
