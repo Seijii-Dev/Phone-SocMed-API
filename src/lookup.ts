@@ -1,4 +1,5 @@
-import { CountryCode, getCountryCallingCode, parsePhoneNumberWithError } from 'libphonenumber-js';
+import { getCountryCallingCode, parsePhoneNumberWithError } from 'libphonenumber-js';
+import type { CountryCode } from 'libphonenumber-js';
 
 export type SocialMatch = {
   provider: string;
@@ -42,8 +43,6 @@ export function normalizePhone(input: string, defaultCountry?: CountryCode) {
 }
 
 function providerStatus(): SocialMatch[] {
-  // Deliberately empty by default. Add an official, consented provider adapter here.
-  // Never implement reverse search through scraping, leaked databases, or account enumeration.
   return [
     {
       provider: 'social-adapters',
