@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "main": "api/lookup.ts",
+  "main": "index.ts",
   "scripts": {
     "build": "tsc --noEmit",
     "test": "node --import tsx --test test/*.test.ts",
