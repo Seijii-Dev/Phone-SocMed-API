@@ -8,8 +8,13 @@ TypeScript + Express + Node.js API deployable to Vercel or a conventional Node.j
 - `api/index.ts` exports the Express application for Vercel serverless execution.
 - `src/server.ts` starts the listener for local development or a persistent Node.js host.
 - `src/lookup.ts` validates and normalizes phone numbers locally with `libphonenumber-js`.
+- `src/providers/index.ts` defines the social-provider contract and reports adapters as disabled by default.
 
-The default implementation does **not** reverse-search social-media accounts by phone number. It does not scrape platforms, enumerate private accounts, use leaked databases, or infer a person's identity. Social matches require documented, authorized provider APIs with appropriate consent and provider terms compliance.
+## Privacy and provider boundary
+
+The uploaded ZIP included reverse-lookup calls to unofficial or private-account endpoints for Telegram, Instagram, WhatsApp, and Facebook. Those network calls were not imported into the repository. The API returns `not_configured` provider entries instead.
+
+Social matches may be added only through documented, authorized provider APIs using explicit consent or account-linking/OAuth flows. The service must not scrape platforms, enumerate private accounts, use leaked databases, or infer a person's identity from a phone number.
 
 ## API
 
@@ -19,9 +24,9 @@ Returns service metadata.
 
 ### `GET /api/health`
 
-Returns a health response.
+Returns health status and the configured provider names.
 
-### `POST /api/lookup`
+### `POST /api/lookup` or `POST /lookup`
 
 Request:
 
@@ -32,7 +37,19 @@ Request:
 }
 ```
 
-The response contains E.164 formatting, country and calling code, validity, possible-number status, number type, and an explicit `not_configured` social-adapter status.
+The response contains E.164 formatting, country, validity, number type, privacy metadata, and disabled social-provider statuses.
+
+### `POST /api/lookup/batch`
+
+Request:
+
+```json
+{
+  "phones": ["+14155552671", "+442071838750"]
+}
+```
+
+Up to 10 phone numbers are accepted per request.
 
 ## Local development
 
