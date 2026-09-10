@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import rateLimit from 'express-rate-limit';
+import { rateLimit } from 'express-rate-limit';
 import { lookupPhone } from './lookup.js';
 
 const app = express();
